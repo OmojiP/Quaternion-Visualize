@@ -1,5 +1,3 @@
-using Unity.VisualScripting;
-using UnityEditor.AnimatedValues;
 using UnityEngine;
 
 /// <summary>
@@ -11,13 +9,6 @@ public struct Quaternion
     float x;
     float y;
     float z;
-
-    public Vector2 xy => new Vector2(x, y);
-    public Vector2 yz => new Vector2(y, z);
-    public Vector2 zx => new Vector2(z, x);
-    public Vector2 wx => new Vector2(w, x);
-    public Vector2 wy => new Vector2(w, y);
-    public Vector2 wz => new Vector2(w, z);
 
     /// <summary>
     /// x, y, z
@@ -40,12 +31,15 @@ public struct Quaternion
         => new Quaternion(a.w - b.w , a.Vector - b.Vector);
 
     public static Quaternion operator *(Quaternion a, Quaternion b)
-        => new Quaternion(
-            w: a.w *b.w - Dot(a.Vector, b.Vector),
-            x: Dot(a.wx, b.wx) + Cross(a.yz, b.yz),
-            y: Dot(a.wy, b.wy) + Cross(a.zx, b.zx),
-            z: Dot(a.wz, b.wz) + Cross(a.xy, b.xy)
+    {
+        Vector3 cross = Vector3.Cross(a.Vector, b.Vector);
+        return new Quaternion(
+            w: a.w * b.w - Vector3.Dot(a.Vector, b.Vector),
+            x: a.w * b.x + b.w * a.x + cross.x,
+            y: a.w * b.y + b.w * a.y + cross.y,
+            z: a.w * b.z + b.w * a.z + cross.z
         );
+    }
     public static Quaternion operator /(Quaternion a, Quaternion b)
         => a * b.Inverse;
 
@@ -80,14 +74,4 @@ public struct Quaternion
         var q_c =  q.Conjugate;
         return ((q * q_p) * q_c).Vector;
     }
-
-    public static float Dot(Vector2 a, Vector2 b)
-    {
-        return Vector2.Dot(a, b);
-    }
-    public static float Cross(Vector2 a, Vector2 b)
-    {
-        return a.x * b.y - a.y * b.x;
-    }
-
 }
