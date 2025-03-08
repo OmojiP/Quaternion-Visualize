@@ -76,9 +76,9 @@ public struct Quaternion
     public static Vector3 Rotate(Vector3 p, Vector3 rotAxis, float theta)
     {
         var q_p = new Quaternion(0, p);
-        var q = Unit(rotAxis, theta);
+        var q = Unit(rotAxis, theta / 2f);
         var q_c =  q.Conjugate;
-        return (q * q_p * q_c).Vector;
+        return ((q * q_p) * q_c).Vector;
     }
 
     public static float Dot(Vector2 a, Vector2 b)
