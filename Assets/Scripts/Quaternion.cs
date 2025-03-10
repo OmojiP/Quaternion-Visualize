@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEngine;
 
 /// <summary>
@@ -75,11 +74,44 @@ public struct MyQuaternion
         var q_c =  q.Conjugate;
         return ((q * q_p) * q_c).Vector;
     }
+
+    public static Vector3 qp(Vector3 p, Vector3 rotAxis, float theta)
+    {
+        var q_p = new MyQuaternion(0, p);
+        var q = Unit(rotAxis, theta);
+        var q_c =  q.Conjugate;
+        return (q * q_p).Vector;
+    }
+    public static Vector3 pqc(Vector3 p, Vector3 rotAxis, float theta)
+    {
+        var q_p = new MyQuaternion(0, p);
+        var q = Unit(rotAxis, theta);
+        var q_c =  q.Conjugate;
+        return (q_p * q_c).Vector;
+    }
+    public static Vector3 pq(Vector3 p, Vector3 rotAxis, float theta)
+    {
+        var q_p = new MyQuaternion(0, p);
+        var q = Unit(rotAxis, theta);
+        var q_c =  q.Conjugate;
+        return (q_p * q).Vector;
+    }
+    public static Vector3 qcp(Vector3 p, Vector3 rotAxis, float theta)
+    {
+        var q_p = new MyQuaternion(0, p);
+        var q = Unit(rotAxis, theta);
+        var q_c =  q.Conjugate;
+        return (q_c * q_p).Vector;
+    }
 }
 
 public static class MyQuaternionExtention
 {
-    public static string ToString(this MyQuaternion q){
+    public static string ToString(MyQuaternion q){
+        return $"w: {q.w}, x: {q.x}, y: {q.y}, z:{q.z}";
+    }
+
+    public static string ToString(Quaternion q){
         return $"w: {q.w}, x: {q.x}, y: {q.y}, z:{q.z}";
     }
 }

@@ -16,19 +16,19 @@ public class RotateObj : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.UpArrow))
         {
-            this.transform.position = MyQuaternion.Rotate(transform.position, Vector3.up, Mathf.PI/2f);
+            this.transform.position = MyQuaternion.Rotate(transform.position, Vector3.right, Mathf.PI/12f);
         }
         if(Input.GetKeyDown(KeyCode.DownArrow))
         {
-            this.transform.position = MyQuaternion.Rotate(transform.position, Vector3.down, Mathf.PI/2f);
+            this.transform.position = MyQuaternion.Rotate(transform.position, Vector3.right, -Mathf.PI/12f);
         }
-        if(Input.GetKeyDown(KeyCode.LeftAlt))
+        if(Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            this.transform.position = MyQuaternion.Rotate(transform.position, Vector3.left, Mathf.PI/2f);
+            this.transform.position = MyQuaternion.Rotate(transform.position, Vector3.up, Mathf.PI/12f);
         }
-        if(Input.GetKeyDown(KeyCode.RightAlt))
+        if(Input.GetKeyDown(KeyCode.RightArrow))
         {
-            this.transform.position = MyQuaternion.Rotate(transform.position, Vector3.right, Mathf.PI/2f);
+            this.transform.position = MyQuaternion.Rotate(transform.position, Vector3.up, -Mathf.PI/12f);
         }
         if(Input.GetKeyDown(KeyCode.Escape))
         {

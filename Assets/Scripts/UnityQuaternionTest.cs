@@ -8,11 +8,7 @@ public class QuaternionRotationExample : MonoBehaviour
 
     void Start()
     {
-        var q = (new MyQuaternion(1, 2, 3, 4) * new MyQuaternion(4, 3, 2, 1));
-        Debug.Log($"{q.x}, {q.y}, {q.z}, {q.w}");
-        var qu = (new Quaternion(2, 3, 4, 1) * new Quaternion(3, 2, 1, 4));
-        Debug.Log($"{qu.x}, {qu.y}, {qu.z}, {qu.w}");
-
+        Debug.Log($"initialPosition: {initialPosition}, angleDegrees: {angleDegrees}, rotationAxis: {rotationAxis}");
 
         UnityQ();
         MyQ();
@@ -27,7 +23,8 @@ public class QuaternionRotationExample : MonoBehaviour
         Quaternion q = Quaternion.AngleAxis(angleDegrees, rotationAxis);
         
         // 初期位置を純クォータニオンに変換 (w=0)
-        Quaternion p = new Quaternion(0, initialPosition.x, initialPosition.y, initialPosition.z);
+        // Quaternion p = new Quaternion(0, initialPosition.x, initialPosition.y, initialPosition.z);
+        Quaternion p = new Quaternion(w:0, x:initialPosition.x, y:initialPosition.y, z:initialPosition.z);
 
         // クォータニオンの回転計算: p' = q * p * q⁻¹
         Quaternion qConjugate = Quaternion.Inverse(q);
@@ -57,5 +54,12 @@ public class QuaternionRotationExample : MonoBehaviour
         Vector3 newPosition = rotatedP.Vector;
 
         Debug.Log($"MyQ 回転後の座標: {newPosition}");
+        Debug.Log($"MyQuaternion.Rotate: {MyQuaternion.Rotate(initialPosition, rotationAxis, angleRadians)}");
+    }
+
+    void DumpQuaternion(MyQuaternion myq, Quaternion uniq)
+    {
+        Debug.Log($"MyQ : {MyQuaternionExtention.ToString(myq)}");
+        Debug.Log($"UniQ: {MyQuaternionExtention.ToString(uniq)}");
     }
 }
