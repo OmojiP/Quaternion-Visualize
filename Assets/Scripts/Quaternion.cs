@@ -75,33 +75,33 @@ public struct MyQuaternion
         return ((q * q_p) * q_c).Vector;
     }
 
-    public static Vector3 qp(Vector3 p, Vector3 rotAxis, float theta)
+    public static MyQuaternion qp(Vector3 p, Vector3 rotAxis, float theta)
     {
         var q_p = new MyQuaternion(0, p);
         var q = Unit(rotAxis, theta);
         var q_c =  q.Conjugate;
-        return (q * q_p).Vector;
+        return (q * q_p);
     }
-    public static Vector3 pqc(Vector3 p, Vector3 rotAxis, float theta)
+    public static MyQuaternion pqc(Vector3 p, Vector3 rotAxis, float theta)
     {
         var q_p = new MyQuaternion(0, p);
         var q = Unit(rotAxis, theta);
         var q_c =  q.Conjugate;
-        return (q_p * q_c).Vector;
+        return (q_p * q_c);
     }
-    public static Vector3 pq(Vector3 p, Vector3 rotAxis, float theta)
+    public static MyQuaternion pq(Vector3 p, Vector3 rotAxis, float theta)
     {
         var q_p = new MyQuaternion(0, p);
         var q = Unit(rotAxis, theta);
         var q_c =  q.Conjugate;
-        return (q_p * q).Vector;
+        return (q_p * q);
     }
-    public static Vector3 qcp(Vector3 p, Vector3 rotAxis, float theta)
+    public static MyQuaternion qcp(Vector3 p, Vector3 rotAxis, float theta)
     {
         var q_p = new MyQuaternion(0, p);
         var q = Unit(rotAxis, theta);
         var q_c =  q.Conjugate;
-        return (q_c * q_p).Vector;
+        return (q_c * q_p);
     }
 }
 

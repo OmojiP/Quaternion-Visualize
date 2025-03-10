@@ -9,15 +9,21 @@ using UnityEngine.UI;
 
 public class RotateObjs : MonoBehaviour
 {
-    [SerializeField] UVSpherePlacer uVSpherePlacer;
+    [SerializeField] UVSphereWithLines sphereWithLines;
 
-    private Func<Vector3, Vector3, float, Vector3> qFunc;
+    private Func<Vector3, Vector3, float, MyQuaternion> qFunc;
+
+    private static readonly int numRotateStep = 50;
+    private static readonly float rotateAngle = Mathf.PI;
 
     [SerializeField] Button setQPButton;
     [SerializeField] Button setQcPButton;
     [SerializeField] Button setPQButton;
     [SerializeField] Button setPQcButton;
     [SerializeField] Button setQPQcButton;
+    [SerializeField] Button step2Buttonqp2pqc;
+    [SerializeField] Button step2Buttonpqc2qp;
+    [SerializeField] Text modeText;
 
     void Start()
     {
@@ -26,6 +32,23 @@ public class RotateObjs : MonoBehaviour
         setPQButton.onClick.AddListener(SetModePQ);
         setPQcButton.onClick.AddListener(SetModePQc);
         setQPQcButton.onClick.AddListener(SetModeQPQc);
+
+        step2Buttonqp2pqc.onClick.AddListener( async () =>
+        {
+            SetModeQP();
+            await RotateObj(Vector3.up, destroyCancellationToken);
+            SetModePQc();
+            await RotateObj(Vector3.up, destroyCancellationToken);
+        });
+        step2Buttonpqc2qp.onClick.AddListener( async () =>
+        {
+            SetModePQc();
+            await RotateObj(Vector3.up, destroyCancellationToken);
+            SetModeQP();
+            await RotateObj(Vector3.up, destroyCancellationToken);
+        });
+
+        SetModeQPQc();
     }
 
     void Update()
@@ -52,7 +75,7 @@ public class RotateObjs : MonoBehaviour
     {
         float angle = 0;
 
-        Transform[] objs = uVSpherePlacer.Spheres.Select(x => x.transform).ToArray();
+        Transform[] objs = sphereWithLines.points.ToArray();
         Vector3[] objsInitialPos = new Vector3[objs.Length];
 
         for (int i = 0; i < objs.Length; i++)
@@ -60,37 +83,45 @@ public class RotateObjs : MonoBehaviour
             objsInitialPos[i] = objs[i].position;
         }
 
-        while(angle <= Mathf.PI * 2)
+        for (int r = 0; r <= numRotateStep; r++)
         {
+            angle = rotateAngle * r / numRotateStep;
+
             for (int i = 0; i < objs.Length; i++)
             {
-                objs[i].position = qFunc.Invoke(objsInitialPos[i], axis, angle);
+                objs[i].position = qFunc.Invoke(objsInitialPos[i], axis, angle).Vector;
             }
 
-            angle += Mathf.PI/12f;
-
-            await UniTask.Delay(1000/24, cancellationToken:token);
+            await UniTask.Delay(2000/numRotateStep, cancellationToken:token);
         }
     }
 
     void SetModeQPQc()
     {
-        qFunc = MyQuaternion.Rotate;
+        qFunc = (p, axis, angle) => 
+        {
+            return new MyQuaternion(0, MyQuaternion.Rotate(p, axis, angle));
+        };
+        modeText.text = "mode:\nQ P Q*";
     }
     void SetModeQP()
     {
         qFunc = MyQuaternion.qp;
+        modeText.text = "mode:\nQ P";
     }
     void SetModePQ()
     {
         qFunc = MyQuaternion.pq;
+        modeText.text = "mode:\nP Q";
     }
     void SetModeQcP()
     {
         qFunc = MyQuaternion.qcp;
+        modeText.text = "mode:\nQ* P";
     }
     void SetModePQc()
     {
         qFunc = MyQuaternion.pqc;
+        modeText.text = "mode:\nP Q*";
     }
 }
