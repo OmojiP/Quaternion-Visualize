@@ -1,20 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
-using System.Linq;
 using System;
 using UnityEngine.UI;
 
 public class RotateObjs : MonoBehaviour
 {
     [SerializeField] UVSphereWithLines sphereWithLines;
+    [SerializeField] Slider thetaSlider;
+    [SerializeField] Text thetaText;
+    [SerializeField] Text speedText;
+    [SerializeField] Slider speedSlider;
 
-    private Func<Vector3, Vector3, float, MyQuaternion> qFunc;
+    private Func<MyQuaternion, Vector3, float, MyQuaternion> qFunc;
 
     private static readonly int numRotateStep = 50;
-    private static readonly float rotateAngle = Mathf.PI;
 
     [SerializeField] Button setQPButton;
     [SerializeField] Button setQcPButton;
@@ -24,31 +24,59 @@ public class RotateObjs : MonoBehaviour
     [SerializeField] Button step2Buttonqp2pqc;
     [SerializeField] Button step2Buttonpqc2qp;
     [SerializeField] Text modeText;
+    [SerializeField] Text arrowText;
+
+    private MyQuaternion[] myQhistory;
+    private Transform[] objs;
 
     void Start()
     {
+        sphereWithLines.StartSphere();
+        objs = sphereWithLines.points.ToArray();
+        myQhistory = new MyQuaternion[objs.Length];
+        for (int i = 0; i < objs.Length; i++)
+        {
+            myQhistory[i] = new MyQuaternion(0, objs[i].position);
+        }
+
         setQPButton.onClick.AddListener(SetModeQP);
         setQcPButton.onClick.AddListener(SetModeQcP);
         setPQButton.onClick.AddListener(SetModePQ);
         setPQcButton.onClick.AddListener(SetModePQc);
         setQPQcButton.onClick.AddListener(SetModeQPQc);
+        thetaSlider.onValueChanged.AddListener((x) => 
+        {
+            thetaSlider.SetValueWithoutNotify(RoundToNearest(x, 15));
+            thetaText.text = $"{thetaSlider.value.ToString("F0")}°";
+        });
+        speedSlider.onValueChanged.AddListener((x) => 
+        {
+            speedText.text = $"{x.ToString("F2")}[s]";
+        });
 
         step2Buttonqp2pqc.onClick.AddListener( async () =>
         {
             SetModeQP();
             await RotateObj(Vector3.up, destroyCancellationToken);
+            await UniTask.Delay(200, cancellationToken: destroyCancellationToken);
             SetModePQc();
+            await UniTask.Delay(800, cancellationToken: destroyCancellationToken);
             await RotateObj(Vector3.up, destroyCancellationToken);
         });
         step2Buttonpqc2qp.onClick.AddListener( async () =>
         {
             SetModePQc();
             await RotateObj(Vector3.up, destroyCancellationToken);
+            await UniTask.Delay(200, cancellationToken: destroyCancellationToken);
             SetModeQP();
+            await UniTask.Delay(800, cancellationToken: destroyCancellationToken);
             await RotateObj(Vector3.up, destroyCancellationToken);
         });
 
         SetModeQPQc();
+
+        thetaSlider.value = 90;
+        speedSlider.value = 1;
     }
 
     void Update()
@@ -71,17 +99,17 @@ public class RotateObjs : MonoBehaviour
         }
     }
 
+    bool isRotating = false;
+
     async UniTask RotateObj(Vector3 axis, CancellationToken token)
     {
+        if(isRotating) return;
+        isRotating = true;
+
+        arrowText.text = (axis == Vector3.up) ? "←" : (axis == Vector3.down) ? "→" : (axis == Vector3.left) ? "↓" : (axis == Vector3.right) ? "↑" : "?";
+
         float angle = 0;
-
-        Transform[] objs = sphereWithLines.points.ToArray();
-        Vector3[] objsInitialPos = new Vector3[objs.Length];
-
-        for (int i = 0; i < objs.Length; i++)
-        {
-            objsInitialPos[i] = objs[i].position;
-        }
+        float rotateAngle = thetaSlider.value * Mathf.Deg2Rad;
 
         for (int r = 0; r <= numRotateStep; r++)
         {
@@ -89,19 +117,23 @@ public class RotateObjs : MonoBehaviour
 
             for (int i = 0; i < objs.Length; i++)
             {
-                objs[i].position = qFunc.Invoke(objsInitialPos[i], axis, angle).Vector;
+                var q = qFunc.Invoke(myQhistory[i], axis, angle);
+                objs[i].position = q.Vector;
+                
+                if(numRotateStep == r)
+                {
+                    myQhistory[i] = q;
+                }
             }
 
-            await UniTask.Delay(2000/numRotateStep, cancellationToken:token);
+            await UniTask.Delay((int)(speedSlider.value*1000)/numRotateStep, cancellationToken:token);
         }
+        isRotating = false;
     }
 
     void SetModeQPQc()
     {
-        qFunc = (p, axis, angle) => 
-        {
-            return new MyQuaternion(0, MyQuaternion.Rotate(p, axis, angle));
-        };
+        qFunc = MyQuaternion.qpqc;
         modeText.text = "mode:\nQ P Q*";
     }
     void SetModeQP()
@@ -123,5 +155,10 @@ public class RotateObjs : MonoBehaviour
     {
         qFunc = MyQuaternion.pqc;
         modeText.text = "mode:\nP Q*";
+    }
+
+    float RoundToNearest(float value, float step)
+    {
+        return Mathf.Round(value / step) * step;
     }
 }

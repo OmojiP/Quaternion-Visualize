@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 
 public class UVSphereWithLines : MonoBehaviour
 {
@@ -16,7 +15,7 @@ public class UVSphereWithLines : MonoBehaviour
     private List<(Transform, Transform)> pointPairs = new (); // 配置したポイントのリスト
     List<LineRenderer> lr = new ();
 
-    void Start()
+    public void StartSphere()
     {
         GenerateUVSphere();
         DrawLines();
