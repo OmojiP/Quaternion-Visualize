@@ -97,6 +97,10 @@ public class RotateObjs : MonoBehaviour
         {
             RotateObj(Vector3.down, destroyCancellationToken).Forget();
         }
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+        }
     }
 
     bool isRotating = false;
