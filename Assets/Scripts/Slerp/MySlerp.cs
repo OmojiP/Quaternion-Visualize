@@ -18,8 +18,10 @@ public class MySlerp : MonoBehaviour
 
     async UniTask SLStart(CancellationToken token)
     {
-        Quaternion q0 = Quaternion.Euler(0, 0, 0);  // 開始回転
-        Quaternion q1 = Quaternion.Euler(0, 0, -180); // 終了回転
+        // Quaternion q0 = Quaternion.Euler(0, 0, 0);  // 開始回転
+        // Quaternion q1 = Quaternion.Euler(0, 0, -180); // 終了回転
+        Quaternion q0 = Quaternion.Euler(0, 0, 60);  // 開始回転
+        Quaternion q1 = Quaternion.Euler(0, 0, 120); // 終了回転
 
         while(true)
         {
